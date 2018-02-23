@@ -22,6 +22,10 @@ public class Signal<T> {
         subscriptions.append(subscription)
     }
     
+    public func unsubscribe(_ observer: AnyObject) {
+        subscriptions = subscriptions.filter { $0.observer !== observer }
+    }
+    
     public func fire(_ data: T) {
         subscriptions = subscriptions.filter { $0.observer != nil }
         subscriptions.forEach { $0.callback(data) }

@@ -80,6 +80,23 @@ class JustSignalsTests: XCTestCase {
         XCTAssertEqual(counter.i, 1)
     }
     
+    func testUnsubscribe() {
+        // provided
+        var fired = false
+        
+        let signal = Signal<Void>()
+        signal.subscribe(with: self) {
+            fired = true
+        }
+        
+        // when
+        signal.unsubscribe(self)
+        signal.fire(())
+        
+        // then
+        XCTAssertFalse(fired)
+    }
+    
     // MARK: - Helpers
     
     class Counter {
