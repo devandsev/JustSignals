@@ -11,13 +11,71 @@ import XCTest
 import JustSignals
 
 class JustSignalsTests: XCTestCase {
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        //// XCTAssertEqual(JustSignals().text, "Hello, World!")
+    
+    // MARK: - Tests
+    
+    func testFire() {
+        // provided
+        var fired = false
+        
+        let signal = Signal()
+        signal.subscribe(with: self) {
+            fired = true
+        }
+        
+        // when
+        signal.fire()
+        
+        // then
+        XCTAssertTrue(fired)
     }
     
-    static var allTests = [
-        ("testExample", testExample),
-    ]
+    func testMultipleFire() {
+        // provided
+        var counter = 0
+        
+        let signal = Signal()
+        signal.subscribe(with: self) {
+            counter += 1
+        }
+        
+        // when
+        signal.fire()
+        signal.fire()
+        
+        // then
+        XCTAssertEqual(counter, 2)
+    }
+    
+    func testDispose() {
+        // provided
+        let signal = Signal()
+        let counter = Counter()
+        
+        var subscribers = [Subscriber()]
+        subscribers.first!.setup(with: signal, counter: counter)
+        
+        // when
+        signal.fire()
+        subscribers.removeAll()
+        signal.fire()
+        
+        // then
+        XCTAssertEqual(counter.i, 1)
+    }
+    
+    // MARK: - Helpers
+    
+    class Counter {
+        var i = 0
+    }
+    
+    class Subscriber {
+        
+        func setup(with signal: Signal, counter: Counter) {
+            signal.subscribe(with: self) {
+                counter.i += 1
+            }
+        }
+    }
 }
