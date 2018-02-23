@@ -18,30 +18,46 @@ class JustSignalsTests: XCTestCase {
         // provided
         var fired = false
         
-        let signal = Signal()
+        let signal = Signal<Void>()
         signal.subscribe(with: self) {
             fired = true
         }
         
         // when
-        signal.fire()
+        signal.fire(())
         
         // then
         XCTAssertTrue(fired)
+    }
+    
+    func testFireWithData() {
+        // provided
+        var currentData = 0
+        
+        let signal = Signal<Int>()
+        signal.subscribe(with: self) { data in
+            currentData = data
+        }
+        
+        // when
+        signal.fire(4)
+        
+        // then
+        XCTAssertEqual(currentData, 4)
     }
     
     func testMultipleFire() {
         // provided
         var counter = 0
         
-        let signal = Signal()
+        let signal = Signal<Void>()
         signal.subscribe(with: self) {
             counter += 1
         }
         
         // when
-        signal.fire()
-        signal.fire()
+        signal.fire(())
+        signal.fire(())
         
         // then
         XCTAssertEqual(counter, 2)
@@ -49,16 +65,16 @@ class JustSignalsTests: XCTestCase {
     
     func testDispose() {
         // provided
-        let signal = Signal()
+        let signal = Signal<Void>()
         let counter = Counter()
         
         var subscribers = [Subscriber()]
         subscribers.first!.setup(with: signal, counter: counter)
         
         // when
-        signal.fire()
+        signal.fire(())
         subscribers.removeAll()
-        signal.fire()
+        signal.fire(())
         
         // then
         XCTAssertEqual(counter.i, 1)
@@ -72,8 +88,8 @@ class JustSignalsTests: XCTestCase {
     
     class Subscriber {
         
-        func setup(with signal: Signal, counter: Counter) {
-            signal.subscribe(with: self) {
+        func setup<T>(with signal: Signal<T>, counter: Counter) {
+            signal.subscribe(with: self) { data in
                 counter.i += 1
             }
         }

@@ -8,30 +8,34 @@
 
 import Foundation
 
-public class Signal {
+public class Signal<T> {
     
-    private var subscriptions: [Subscription] = []
+    public typealias Callback = (T) -> Void
+    
+    private var subscriptions: [Subscription<T>] = []
     
     public init() {
     }
     
-    public func subscribe(with observer: AnyObject, onEvent callback: @escaping () -> Void) {
-        let subscription = Subscription(observer: observer, callback: callback)
+    public func subscribe(with observer: AnyObject, onEvent callback: @escaping Callback) {
+        let subscription = Subscription<T>(observer: observer, callback: callback)
         subscriptions.append(subscription)
     }
     
-    public func fire() {
+    public func fire(_ data: T) {
         subscriptions = subscriptions.filter { $0.observer != nil }
-        subscriptions.forEach { $0.callback() }
+        subscriptions.forEach { $0.callback(data) }
     }
 }
 
-class Subscription {
+class Subscription<T> {
+    
+    typealias Callback = (T) -> Void
     
     weak var observer: AnyObject?
-    let callback: () -> Void
+    let callback: Callback
     
-    init(observer: AnyObject, callback: @escaping () -> Void) {
+    init(observer: AnyObject, callback: @escaping Callback) {
         self.observer = observer
         self.callback = callback
     }
