@@ -1,0 +1,9 @@
+language: objective-c
+osx_image: xcode9.2
+
+env:
+  - SCHEME="JustSignals-macOS"  DESTINATION="arch=x86_64"
+  - SCHEME="JustSignals-iOS"    DESTINATION="platform=iOS Simulator,name=iPhone SE,OS=11.2"
+
+script:
+  - xcodebuild clean test -scheme "$SCHEME" -destination "$DESTINATION"
