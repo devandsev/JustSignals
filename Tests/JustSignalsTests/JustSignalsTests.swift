@@ -8,14 +8,14 @@
 
 import Foundation
 import XCTest
-import JustSignals
+@testable import JustSignals
 
 class JustSignalsTests: XCTestCase {
     
     // MARK: - Tests
     
     func testFire() {
-        // provided
+        // given
         var fired = false
         
         let signal = Signal<Void>()
@@ -31,7 +31,7 @@ class JustSignalsTests: XCTestCase {
     }
     
     func testFireWithData() {
-        // provided
+        // given
         var currentData = 0
         
         let signal = Signal<Int>()
@@ -47,7 +47,7 @@ class JustSignalsTests: XCTestCase {
     }
     
     func testMultipleFire() {
-        // provided
+        // given
         var counter = 0
         
         let signal = Signal<Void>()
@@ -63,8 +63,26 @@ class JustSignalsTests: XCTestCase {
         XCTAssertEqual(counter, 2)
     }
     
-    func testDispose() {
-        // provided
+    func testDisposeOnSubscribe() {
+        // given
+        let signal = Signal<Void>()
+        var subscribers = [Subscriber(), Subscriber()]
+        
+        // when
+        signal.subscribe(with: subscribers[0]) {
+        }
+        
+        subscribers.removeFirst()
+        
+        signal.subscribe(with: subscribers[0]) {
+        }
+        
+        // then
+        XCTAssertEqual(signal.subscriptionsCount, 1)
+    }
+    
+    func testDisposeOnFire() {
+        // given
         let signal = Signal<Void>()
         let counter = Counter()
         
@@ -81,7 +99,7 @@ class JustSignalsTests: XCTestCase {
     }
     
     func testUnsubscribe() {
-        // provided
+        // given
         var fired = false
         
         let signal = Signal<Void>()

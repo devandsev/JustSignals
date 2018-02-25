@@ -14,10 +14,16 @@ public class Signal<T> {
     
     private var subscriptions: [Subscription<T>] = []
     
+    var subscriptionsCount: Int {
+        return subscriptions.count
+    }
+    
     public init() {
     }
     
     public func subscribe(with observer: AnyObject, onEvent callback: @escaping Callback) {
+        cleanInvalidSubscriptions()
+        
         let subscription = Subscription<T>(observer: observer, callback: callback)
         subscriptions.append(subscription)
     }
@@ -27,8 +33,13 @@ public class Signal<T> {
     }
     
     public func fire(_ data: T) {
-        subscriptions = subscriptions.filter { $0.observer != nil }
+        cleanInvalidSubscriptions()
+        
         subscriptions.forEach { $0.callback(data) }
+    }
+    
+    private func cleanInvalidSubscriptions() {
+        subscriptions = subscriptions.filter { $0.observer != nil }
     }
 }
 
